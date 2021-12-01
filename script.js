@@ -48,13 +48,13 @@ function displayData(allPostsJSONArray) {
       taskInComplete += `
       <p>Title: ${postObj.title} Status: ${postObj.status}</p>
       <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-      <input type="checkbox" onclick="changeStatus(${postObj.userId},'${postObj.title}',${postObj.status},${postObj.id})">
+      <input type="checkbox" onclick="changeStatus(${postObj.status},${postObj.id})">
         `;
     } else {
       taskComplete += `
       <p>Title: ${postObj.title} Status: ${postObj.status}</p>
       <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-      <input type="checkbox" onclick="changeStatus(${postObj.userId},'${postObj.title}',${postObj.status},${postObj.id})">
+      <input type="checkbox" onclick="changeStatus(${postObj.status},${postObj.id})">
         `;
     }
     let apost_close = `</div>
@@ -83,14 +83,12 @@ function deleteTask(taskId) {
   }
 }
 
-function changeStatus(uId, taskTitle, stat, taskId) {
+function changeStatus(stat, taskId) {
   let updateConfirm = confirm("Do you really wanna update status?");
   if (updateConfirm) {
     fetch(jsonURl + taskId, {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify({
-        userId: uId,
-        title: taskTitle,
         status: !stat,
       }),
       headers: {
