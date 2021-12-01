@@ -69,18 +69,23 @@ function deleteTask(taskId) {
 }
 
 function changeStatus(taskId, stat) {
-  fetch("http://localhost:3000/todos/" + taskId, {
-    method: "PUT",
-    body: JSON.stringify({
-      status: !stat,
-    }),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-    },
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      console.log("Task  status changed to " + json.status, json);
-      fetchData();
-    });
+  let updateConfirm = confirm("Do you really wanna update status?");
+  if (updateConfirm) {
+    fetch("http://localhost:3000/todos/" + taskId, {
+      method: "PUT",
+      body: JSON.stringify({
+        status: !stat,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log("Task  status changed to " + json.status, json);
+        fetchData();
+      });
+  } else {
+    fetchData();
+  }
 }
