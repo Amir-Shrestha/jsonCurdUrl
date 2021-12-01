@@ -54,10 +54,15 @@ function displayData(allPostsJSONArray) {
 }
 
 function deleteTask(id) {
-  fetch("http://localhost:3000/todos/" + id, {
-    method: "DELETE",
-  }).then(() => {
-    console.log("Task " + id + " Deleted !");
+  let deleteConfirm = confirm("Do you really wanna delete it?");
+  if (deleteConfirm) {
+    fetch("http://localhost:3000/todos/" + id, {
+      method: "DELETE",
+    }).then(() => {
+      console.log("Task " + id + " Deleted !");
+      fetchData();
+    });
+  } else {
     fetchData();
-  });
+  }
 }
