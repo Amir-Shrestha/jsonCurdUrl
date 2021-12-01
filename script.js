@@ -44,25 +44,43 @@ function displayData(allPostsJSONArray) {
           <p>User Id: ${postObj.userId}</p>
           <p>Post Id: ${postObj.id}</p>
           <p>Title: ${postObj.title}</p>
-          <p>Body: ${postObj.status}</p>
+          <p>Status: ${postObj.status}</p>
           <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-        </div>
+          <input type="checkbox" onclick="changeStatus(${postObj.id},${postObj.status})">
+          </div>
         <hr>
         `;
     postsDiv.innerHTML += apost;
   }
 }
 
-function deleteTask(id) {
+function deleteTask(taskId) {
   let deleteConfirm = confirm("Do you really wanna delete it?");
   if (deleteConfirm) {
-    fetch("http://localhost:3000/todos/" + id, {
+    fetch("http://localhost:3000/todos/" + taskId, {
       method: "DELETE",
     }).then(() => {
-      console.log("Task " + id + " Deleted !");
+      console.log("Task " + taskId + " Deleted !");
       fetchData();
     });
   } else {
     fetchData();
   }
+}
+
+function changeStatus(taskId, stat) {
+  fetch("http://localhost:3000/todos/" + taskId, {
+    method: "PUT",
+    body: JSON.stringify({
+      status: !stat,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      console.log("Task  status changed to " + json.status, json);
+      fetchData();
+    });
 }
