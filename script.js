@@ -1,4 +1,4 @@
-let jsonURl = "http://localhost:3000/todos";
+let jsonURl = "http://localhost:3000/todos/";
 const uniqueUserId = [];
 fetchData();
 
@@ -37,27 +37,42 @@ function filterUser(allPostsJSONArray) {
 function displayData(allPostsJSONArray) {
   let postsDiv = document.getElementById("posts");
   postsDiv.innerHTML = "";
+  let taskInComplete = `<div class="taskInComplete"> <b>InComplete:</b>`;
+  let taskComplete = `<div class="taskComplete"> <b>Complete:</b>`;
   allPostsJSONArray.forEach(postDetial);
   function postDetial(postObj) {
-    apost = `
+    let apost_open = `
           <div class="post">
-          <p>User Id: ${postObj.userId}</p>
-          <p>Post Id: ${postObj.id}</p>
-          <p>Title: ${postObj.title}</p>
-          <p>Status: ${postObj.status}</p>
-          <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-          <input type="checkbox" onclick="changeStatus(${postObj.id},${postObj.status})">
-          </div>
-        <hr>
+            <p>User Id: ${postObj.userId}</p>`;
+    if (postObj.status == false) {
+      taskInComplete += `
+      <p>Title: ${postObj.title} Status: ${postObj.status}</p>
+      <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
+      <input type="checkbox" onclick="changeStatus(${postObj.userId},'${postObj.title}',${postObj.status},${postObj.id})">
         `;
-    postsDiv.innerHTML += apost;
+    } else {
+      taskComplete += `
+      <p>Title: ${postObj.title} Status: ${postObj.status}</p>
+      <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
+      <input type="checkbox" onclick="changeStatus(${postObj.userId},'${postObj.title}',${postObj.status},${postObj.id})">
+        `;
+    }
+    let apost_close = `</div>
+          <hr><hr>`;
+    postsDiv.innerHTML +=
+      apost_open +
+      taskInComplete +
+      "</div>" +
+      taskComplete +
+      "</div>" +
+      apost_close;
   }
 }
 
 function deleteTask(taskId) {
   let deleteConfirm = confirm("Do you really wanna delete it?");
   if (deleteConfirm) {
-    fetch("http://localhost:3000/todos/" + taskId, {
+    fetch(jsonURl + taskId, {
       method: "DELETE",
     }).then(() => {
       console.log("Task " + taskId + " Deleted !");
@@ -68,12 +83,14 @@ function deleteTask(taskId) {
   }
 }
 
-function changeStatus(taskId, stat) {
+function changeStatus(uId, taskTitle, stat, taskId) {
   let updateConfirm = confirm("Do you really wanna update status?");
   if (updateConfirm) {
-    fetch("http://localhost:3000/todos/" + taskId, {
+    fetch(jsonURl + taskId, {
       method: "PUT",
       body: JSON.stringify({
+        userId: uId,
+        title: taskTitle,
         status: !stat,
       }),
       headers: {
