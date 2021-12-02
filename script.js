@@ -26,11 +26,13 @@ function getUserId(userTaskObject) {
 
 //3
 function userDropdownList(userIds) {
+  var userDropdown = document.getElementById("userDropdown");
+  userDropdown.innerHTML = "";
+  userDropdown.innerHTML += `<option value="all_users" selected>All User</option>`;
+
   userIds.forEach((userId) => {
-    var option = document.createElement("option");
-    option.innerHTML = "User Id: " + userId;
-    option.value = userId;
-    document.getElementById("userDropdown").appendChild(option);
+    var option = `<option value="${userId}">User Id: ${userId}</option>`;
+    userDropdown.innerHTML += option;
   });
 }
 
@@ -56,7 +58,20 @@ function filterUser() {
     userIds = getUserId(filterTaskObject);
   }
 
+  //filter according to status
+  if (selectedStatus != "all_status") {
+    filterTaskObject = filterUserByTaskStatus(
+      filterTaskObject,
+      selectedStatus == "completed" // gives true|false
+    );
+  }
+
   generateLayout(filterTaskObject, userIds); //6
+}
+
+function filterUserByTaskStatus(filterTaskObject, status) {
+  var arr = filterTaskObject.filter((taskObj) => taskObj.status == status);
+  return arr;
 }
 
 function generateLayout(filterTaskObject, userIds) {
@@ -129,10 +144,12 @@ function changeStatus(stat, taskId) {
     })
       .then((response) => response.json())
       .then((json) => {
-        // console.log("Task  status changed to " + json.status, json);
         fetchData();
+        // console.log("Task  status changed to " + json.status, json);
+        // location.reload();
       });
   } else {
     fetchData();
+    // location.reload();
   }
 }
