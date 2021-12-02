@@ -2,7 +2,7 @@ let jsonURl = "http://localhost:3000/todos/";
 var globalTaskObject = [];
 fetchData();
 
-//1
+//1.Retrive
 function fetchData() {
   fetch(jsonURl)
     .then((response) => response.json())
@@ -83,6 +83,10 @@ function generateLayout(filterTaskObject, userIds) {
     userTaskDIv = `
                   <div id="userDiv_${userID}" class="aUserDiv">
                     <h2>UserId: ${userID}</h2>
+
+                    <input type="text" id="addTask${userID}" />
+                    <button type="button" onclick="createTask(${userID});">Create</button>
+
                     <div id="taskInComplete_${userID}" class="taskInComplete"></div><hr>
                     <div id="taskComplete_${userID}" class="taskComplete"></div>
                   </div>
@@ -96,8 +100,9 @@ function displayData(filterTaskObject) {
   filterTaskObject.forEach(userDetial);
   function userDetial(taskObj) {
     let task = `<div  class="task">
-                  <input type="checkbox" name="taskCheck" onclick="changeStatus(${taskObj.status},${taskObj.id})">
-                  <label for="taskCheck">${taskObj.title}</label>
+                  <input type="checkbox" class="checkBox" name="taskCheck" onclick="changeStatus(${taskObj.status},${taskObj.id})">
+                  <label for="taskCheck" id="task${taskObj.id}">${taskObj.title}</label>
+                  <button type="button" class="update" onclick="updateTitle(${taskObj.id},'${taskObj.title}')">&#9999</button>
                   <button type="button" class="delTask" onclick="deleteTask(${taskObj.id})">X</button>
                 </div>
                 `;
@@ -116,20 +121,7 @@ function displayData(filterTaskObject) {
   }
 }
 
-function deleteTask(taskId) {
-  let deleteConfirm = confirm("Do you really wanna delete it?");
-  if (deleteConfirm) {
-    fetch(jsonURl + taskId, {
-      method: "DELETE",
-    }).then(() => {
-      console.log("Task " + taskId + " Deleted !");
-      fetchData();
-    });
-  } else {
-    fetchData();
-  }
-}
-
+//Update
 function changeStatus(stat, taskId) {
   let updateConfirm = confirm("Do you really wanna update status?");
   if (updateConfirm) {
@@ -147,9 +139,79 @@ function changeStatus(stat, taskId) {
         fetchData();
         // console.log("Task  status changed to " + json.status, json);
         // location.reload();
+        // generateLayout(filterTaskObject, userIds)
       });
   } else {
     fetchData();
     // location.reload();
+    // generateLayout(filterTaskObject, userIds)
+  }
+}
+
+//Delete
+function deleteTask(taskId) {
+  let deleteConfirm = confirm("Do you really wanna delete it?");
+  if (deleteConfirm) {
+    fetch(jsonURl + taskId, {
+      method: "DELETE",
+    }).then(() => {
+      console.log("Task " + taskId + " Deleted !");
+      fetchData();
+    });
+  } else {
+    fetchData();
+  }
+}
+
+//Create
+function createTask(uId) {
+  let title = document.getElementById("addTask" + uId).value;
+  fetch("http://localhost:3000/todos", {
+    method: "POST",
+    body: JSON.stringify({
+      userId: uId,
+      title: title,
+      status: false,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      fetchData();
+    });
+}
+
+function updateTitle(id, title) {
+  let taskTitle = document.getElementById("task" + id);
+  taskTitle.innerHTML = "";
+  taskTitle.innerHTML += `
+    <input type="text"/ id="updateTask${id}" placeholder="${title}">
+    <button type="button" onclick="changeTitle(${id})">Edit</button>
+  `;
+}
+
+//Update
+function changeTitle(taskId) {
+  let title = document.getElementById("updateTask" + taskId).value;
+  let updateConfirm = confirm("Do you really wanna update title?");
+  if (updateConfirm) {
+    fetch(jsonURl + taskId, {
+      method: "PATCH",
+      body: JSON.stringify({
+        title: title,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        fetchData();
+      });
+  } else {
+    fetchData();
   }
 }
