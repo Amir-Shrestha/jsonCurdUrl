@@ -42,17 +42,18 @@ function filterUser() {
   var selectBox2 = document.getElementById("statusDropdown");
   var selectedStatus = selectBox2.value;
 
-  const filterTaskObject = [];
+  var filterTaskObject = [];
+  var userIds = [];
 
   //filter to user
   if (selectedUser == "all_users") {
     globalTaskObject.forEach((userObj) => filterTaskObject.push(userObj));
-    var userIds = getUserId(filterTaskObject);
+    userIds = getUserId(filterTaskObject);
   } else {
     filterTaskObject = globalTaskObject.filter(
-      (userObj) => userObj.userId == selectedUser
+      (taskObj) => taskObj.userId == selectedUser
     );
-    var userIds = getUserId(filterTaskObject);
+    userIds = getUserId(filterTaskObject);
   }
 
   generateLayout(filterTaskObject, userIds); //6
