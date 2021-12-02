@@ -1,26 +1,32 @@
 let jsonURl = "http://localhost:3000/todos/";
-const uniqueUserId = [];
+var globalTaskObject = [];
 fetchData();
 
 //1
 function fetchData() {
   fetch(jsonURl)
     .then((response) => response.json())
-    .then((allPostsJSONArray) => {
-      userDropdownList(allPostsJSONArray); //2
-      filterUser(allPostsJSONArray); //4
+    .then((allTaskObject) => {
+      globalTaskObject = allTaskObject;
+      let userIds = getUserId(allTaskObject);
+      userDropdownList(userIds); //2
+      generateLayout(allTaskObject, userIds); //4
     });
 }
 
-//3
-function userDropdownList(allPostsJSONArray) {
-  allPostsJSONArray.forEach((uniqueUser) => {
+function getUserId(userTaskObject) {
+  const uniqueUserId = [];
+  userTaskObject.forEach((uniqueUser) => {
     if (uniqueUserId.includes(uniqueUser.userId) == false) {
       uniqueUserId.push(uniqueUser.userId);
     }
   });
+  return uniqueUserId;
+}
 
-  uniqueUserId.forEach((userId) => {
+//3
+function userDropdownList(userIds) {
+  userIds.forEach((userId) => {
     var option = document.createElement("option");
     option.innerHTML = "User Id: " + userId;
     option.value = userId;
@@ -29,43 +35,68 @@ function userDropdownList(allPostsJSONArray) {
 }
 
 //5
-function filterUser(allPostsJSONArray) {
-  displayData(allPostsJSONArray); //6
+function filterUser() {
+  // 4.1 get the sort value from searchForm
+  var selectBox1 = document.getElementById("userDropdown");
+  var selectedUser = selectBox1.value;
+  var selectBox2 = document.getElementById("statusDropdown");
+  var selectedStatus = selectBox2.value;
+
+  const filterTaskObject = [];
+
+  //filter to user
+  if (selectedUser == "all_users") {
+    globalTaskObject.forEach((userObj) => filterTaskObject.push(userObj));
+    var userIds = getUserId(filterTaskObject);
+  } else {
+    filterTaskObject = globalTaskObject.filter(
+      (userObj) => userObj.userId == selectedUser
+    );
+    var userIds = getUserId(filterTaskObject);
+  }
+
+  generateLayout(filterTaskObject, userIds); //6
 }
 
-//7
-function displayData(allPostsJSONArray) {
-  let postsDiv = document.getElementById("posts");
+function generateLayout(filterTaskObject, userIds) {
+  let postsDiv = document.getElementById("users");
   postsDiv.innerHTML = "";
-  let taskInComplete = `<div class="taskInComplete"> <b>InComplete:</b>`;
-  let taskComplete = `<div class="taskComplete"> <b>Complete:</b>`;
-  allPostsJSONArray.forEach(postDetial);
-  function postDetial(postObj) {
-    let apost_open = `
-          <div class="post">
-            <p>User Id: ${postObj.userId}</p>`;
-    if (postObj.status == false) {
-      taskInComplete += `
-      <p>Title: ${postObj.title} Status: ${postObj.status}</p>
-      <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-      <input type="checkbox" onclick="changeStatus(${postObj.status},${postObj.id})">
-        `;
+
+  userIds.forEach(userDiv);
+  function userDiv(userID) {
+    userTaskDIv = `
+                  <div id="userDiv_${userID}" class="aUserDiv">
+                    <h2>UserId: ${userID}</h2>
+                    <div id="taskInComplete_${userID}" class="taskInComplete"></div><hr>
+                    <div id="taskComplete_${userID}" class="taskComplete"></div>
+                  </div>
+                  `;
+    postsDiv.innerHTML += userTaskDIv;
+  }
+  displayData(filterTaskObject);
+}
+//7
+function displayData(filterTaskObject) {
+  filterTaskObject.forEach(userDetial);
+  function userDetial(taskObj) {
+    let task = `<div  class="task">
+                  <input type="checkbox" name="taskCheck" onclick="changeStatus(${taskObj.status},${taskObj.id})">
+                  <label for="taskCheck">${taskObj.title}</label>
+                  <button type="button" class="delTask" onclick="deleteTask(${taskObj.id})">X</button>
+                </div>
+                `;
+    // let userTaskDIv = document.getElementById("userDiv_" + taskObj.userId);
+    if (taskObj.status) {
+      let taskComplete = document.getElementById(
+        "taskComplete_" + taskObj.userId
+      );
+      taskComplete.innerHTML += task;
     } else {
-      taskComplete += `
-      <p>Title: ${postObj.title} Status: ${postObj.status}</p>
-      <button type="button" class="" onclick="deleteTask(${postObj.id})">X</button>
-      <input type="checkbox" onclick="changeStatus(${postObj.status},${postObj.id})">
-        `;
+      let taskComplete = document.getElementById(
+        "taskInComplete_" + taskObj.userId
+      );
+      taskComplete.innerHTML += task;
     }
-    let apost_close = `</div>
-          <hr><hr>`;
-    postsDiv.innerHTML +=
-      apost_open +
-      taskInComplete +
-      "</div>" +
-      taskComplete +
-      "</div>" +
-      apost_close;
   }
 }
 
@@ -97,7 +128,7 @@ function changeStatus(stat, taskId) {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log("Task  status changed to " + json.status, json);
+        // console.log("Task  status changed to " + json.status, json);
         fetchData();
       });
   } else {

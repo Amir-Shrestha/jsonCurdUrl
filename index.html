@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>Posts</title>
   </head>
   <body>
@@ -11,22 +12,20 @@
       <h1>Todo list</h1>
 
       <div class="sorting">
-        <form>
-          <select name="userDropdown" id="userDropdown" class="select-box">
-            <option value="all_users" selected>All User</option>
-          </select>
-          <select name="statusDropdown" id="statusDropdown" class="select-box">
-            <option value="all_status" selected>All Status</option>
-            <option value="completed">Completed</option>
-            <option value="incomplete">InComplete</option>
-          </select>
-          <button type="button" class="search" onclick="filterUser()">
-            Search
-          </button>
-        </form>
+        <select name="userDropdown" id="userDropdown" class="select-box">
+          <option value="all_users" selected>All User</option>
+        </select>
+        <select name="statusDropdown" id="statusDropdown" class="select-box">
+          <option value="all_status" selected>All Status</option>
+          <option value="completed">Completed</option>
+          <option value="incomplete">InComplete</option>
+        </select>
+        <button type="button" class="search" onclick="filterUser()">
+          Search
+        </button>
       </div>
 
-      <div id="posts"></div>
+      <div id="users" class="users"></div>
     </div>
     <script src="script.js"></script>
   </body>
