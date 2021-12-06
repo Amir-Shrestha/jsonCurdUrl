@@ -1,0 +1,62 @@
+.container {
+  /* background: red; */
+  width: 80%;
+  margin: auto;
+  border: 2px solid black;
+  font-family: "Arial", Sans-serif;
+}
+h1 {
+  text-align: center;
+}
+.sorting {
+  display: grid;
+  grid-template-columns: 35% 35% 15%;
+  grid-template-rows: 40px;
+  gap: 7.5%;
+}
+.sorting,
+.users {
+  width: 90%;
+  /* background-color: green; */
+  margin: auto;
+  margin-bottom: 30px;
+}
+.select-box {
+  text-align: center;
+  font-size: 18px;
+}
+.search {
+  text-align: center;
+  background-color: rgb(11, 82, 224);
+  text-shadow: 2px 0px 0px black;
+  color: white;
+  font-size: 18px;
+  border: 1px solid black;
+}
+.users {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 10px;
+}
+
+.aUserDiv {
+  background-color: rgb(34, 216, 220);
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 10px;
+}
+.taskComplete p {
+  text-decoration: line-through;
+}
+
+.delTask {
+  background: red;
+  color: white;
+  border-radius: 8px;
+  border-color: black;
+}
+.task {
+  display: grid;
+  grid-template-columns: 6% 87% 7%;
+  margin-bottom: 3px;
+}
