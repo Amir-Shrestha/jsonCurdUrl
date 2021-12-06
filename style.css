@@ -76,15 +76,6 @@ h1 {
 .taskInComplete {
   margin-top: 10px;
 }
-input[type="text"]:hover {
-  background: rgb(231, 161, 104);
-  border-color: white;
-  color: blue;
-}
-input[type="text"]:hover::placeholder {
-  color: blue;
-  opacity: 1;
-}
 .checkBox:checked::after {
   background-color: green;
 }
