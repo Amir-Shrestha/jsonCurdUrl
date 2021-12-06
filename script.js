@@ -134,29 +134,29 @@ function displayData(filterTaskObject) {
 
 //Update
 function changeStatus(stat, taskId) {
-  let updateConfirm = confirm("Do you really wanna update status?");
-  if (updateConfirm) {
-    fetch(jsonURl + taskId, {
-      method: "PATCH",
-      body: JSON.stringify({
-        status: !stat,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        fetchData();
-        // console.log("Task  status changed to " + json.status, json);
-        // location.reload();
-        // generateLayout(filterTaskObject, userIds)
-      });
-  } else {
-    fetchData();
-    // location.reload();
-    // generateLayout(filterTaskObject, userIds)
-  }
+  // let updateConfirm = confirm("Do you really wanna update status?");
+  // if (updateConfirm) {
+  fetch(jsonURl + taskId, {
+    method: "PATCH",
+    body: JSON.stringify({
+      status: !stat,
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      fetchData();
+      // console.log("Task  status changed to " + json.status, json);
+      // location.reload();
+      // generateLayout(filterTaskObject, userIds)
+    });
+  // } else {
+  //   fetchData();
+  //   // location.reload();
+  //   // generateLayout(filterTaskObject, userIds)
+  // }
 }
 
 //Delete
@@ -196,12 +196,19 @@ function createTask(event, uId) {
   }
 }
 
+var updateBoolen = true;
 function updateTitle(id, title) {
   let taskTitle = document.getElementById("task" + id);
-  taskTitle.innerHTML = "";
-  taskTitle.innerHTML += `
-    <input type="text"/ id="updateTask${id}" placeholder="${title}" onkeydown="changeTitle(event, ${id})">
+  if (updateBoolen) {
+    taskTitle.innerHTML = "";
+    taskTitle.innerHTML += `
+  <input type="text"/ id="updateTask${id}" value="${title}"  onkeydown="changeTitle(event, ${id})">
   `;
+    updateBoolen = !updateBoolen;
+  } else {
+    taskTitle.innerHTML = title;
+    updateBoolen = !updateBoolen;
+  }
 }
 
 //Update
