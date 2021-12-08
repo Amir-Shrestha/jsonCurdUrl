@@ -253,12 +253,17 @@ function createNewTaskObj(jsonResponse) {
 
 
 
-var updateBoolen = true;
 function changeTitleTag(id, title) {
-  let taskTitle = document.getElementById("task" + id);
+  let taskDiv = document.getElementById("taskDiv" + id);
+  let taskTitle = taskDiv.childNodes[3];
+  console.log(taskTitle)
+  console.log(taskTitle.tagName)
+  //check if taskDivchild[1] is lable element or input element
+  // and alter the element viseversa
   // taskOfTask=id;
 
-  if (updateBoolen) {
+  // if (taskTitle_type = label) {
+  if (taskTitle.tagName == 'LABEL') {
     let input = document.createElement("INPUT");
     input.setAttribute("type", "text");
     input.setAttribute("id", "task"+id);
@@ -269,17 +274,15 @@ function changeTitleTag(id, title) {
     input.focus();
     const inputLength = input.value.length;
     input.setSelectionRange(inputLength, inputLength);
-
-    updateBoolen = !updateBoolen;
-  } else {
-    let label = document.createElement("Label");
+  }
+  if(taskTitle.tagName == 'INPUT') {
+    let label = document.createElement("LABEL");
     label.setAttribute("class", "checkLabel");
     label.setAttribute("for", "taskCheck"+id);
     label.setAttribute("id", "task"+id);
-    taskTitle.replaceWith(label);
     label.innerHTML= title;
+    console.log(label)
     taskTitle.replaceWith(label);
-    updateBoolen = !updateBoolen;
   }
 }
 
