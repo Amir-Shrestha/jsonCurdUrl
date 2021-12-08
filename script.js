@@ -108,8 +108,7 @@ function displayData(filterTaskObject) {
   function userDetial(taskObj) {
     let task = `<div  class="task" id="taskDiv${taskObj.id}">
                   <input type="checkbox" class="checkBox" id="taskCheck${taskObj.id}" onclick="changeStatus(${taskObj.status},${taskObj.id})" ${taskObj.status ? "checked" : ""}>
-                  <label class="checkLabel" for="taskCheck${taskObj.id}" id="task${taskObj.id}">${taskObj.title}</label>
-                  <button type="button" class="update" onclick="changeTitleTag(${taskObj.id},'${taskObj.title}')">&#9999</button>
+                  <label class="checkLabel" for="taskCheck${taskObj.id}" id="task${taskObj.id}" onclick="changeTitleTag(${taskObj.id},'${taskObj.title}')">${taskObj.title}</label>
                   <button type="button" class="delTask" onclick="deleteTask(${taskObj.id})">X</button>
                 </div>
                 `;
@@ -227,11 +226,6 @@ function createTask(event, uId) {
         createNewTaskObj(jsonResponse);
       });
   }
-  // else {
-  // console.log("hello1");
-  //   console.log("hello2");
-  // }
-  // return false;
 }
 
 
@@ -258,11 +252,7 @@ function changeTitleTag(id, title) {
   let taskTitle = taskDiv.childNodes[3];
   console.log(taskTitle)
   console.log(taskTitle.tagName)
-  //check if taskDivchild[1] is lable element or input element
-  // and alter the element viseversa
-  // taskOfTask=id;
 
-  // if (taskTitle_type = label) {
   if (taskTitle.tagName == 'LABEL') {
     let input = document.createElement("INPUT");
     input.setAttribute("type", "text");
@@ -293,8 +283,6 @@ function changeTitleTag(id, title) {
 function changeTitle(event, taskId) {
   if (event.keyCode === 13) {
     let title = document.getElementById("task" + taskId).value;
-    let updateConfirm = confirm("Do you really wanna update title?");
-    if (updateConfirm) {
       fetch(jsonURl + taskId, {
         method: "PATCH",
         body: JSON.stringify({
@@ -308,9 +296,6 @@ function changeTitle(event, taskId) {
         .then((json) => {
           changeVariableTitle(taskId, title)
         });
-    // } else {
-    //   changeVariableTitle(taskId, title)
-    }
   }
 }
 
