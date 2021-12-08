@@ -1,5 +1,7 @@
 let jsonURl = "http://localhost:3000/todos/";
-var globalTaskObject = [];
+var globalAllTaskObject = [];
+var globalAllUserIds = [];
+
 fetchData();
 
 //1.Retrive
@@ -7,11 +9,20 @@ function fetchData() {
   fetch(jsonURl)
     .then((response) => response.json())
     .then((allTaskObject) => {
-      globalTaskObject = allTaskObject;
-      let userIds = getUserId(allTaskObject);
-      userDropdownList(userIds); //2
-      generateLayout(allTaskObject, userIds); //4
+      // alert("Hello manish");
+      globalAllTaskObject = allTaskObject;
+      getAllUserId(globalAllTaskObject);
+      userDropdownList(); //2
+      generateLayout(globalAllTaskObject, globalAllUserIds); //4
     });
+}
+
+function getAllUserId(taskObject) {
+  taskObject.forEach((uniqueUser) => {
+    if (globalAllUserIds.includes(uniqueUser.userId) == false) {
+      globalAllUserIds.push(uniqueUser.userId);
+    }
+  });
 }
 
 function getUserId(userTaskObject) {
@@ -25,12 +36,12 @@ function getUserId(userTaskObject) {
 }
 
 //3
-function userDropdownList(userIds) {
+function userDropdownList() {
   var userDropdown = document.getElementById("userDropdown");
   userDropdown.innerHTML = "";
   userDropdown.innerHTML += `<option value="all_users" selected>All User</option>`;
 
-  userIds.forEach((userId) => {
+  globalAllUserIds.forEach((userId) => {
     var option = `<option value="${userId}">User Id: ${userId}</option>`;
     userDropdown.innerHTML += option;
   });
@@ -45,17 +56,17 @@ function filterUser() {
   var selectedStatus = selectBox2.value;
 
   var filterTaskObject = [];
-  var userIds = [];
+  let filterUserIds = [];
 
   //filter to user
   if (selectedUser == "all_users") {
-    globalTaskObject.forEach((userObj) => filterTaskObject.push(userObj));
-    userIds = getUserId(filterTaskObject);
+    globalAllTaskObject.forEach((userObj) => filterTaskObject.push(userObj));
+    filterUserIds = getUserId(filterTaskObject);
   } else {
-    filterTaskObject = globalTaskObject.filter(
+    filterTaskObject = globalAllTaskObject.filter(
       (taskObj) => taskObj.userId == selectedUser
     );
-    userIds = getUserId(filterTaskObject);
+    filterUserIds = getUserId(filterTaskObject);
   }
 
   //filter according to status
@@ -66,26 +77,23 @@ function filterUser() {
     );
   }
 
-  generateLayout(filterTaskObject, userIds); //6
+  generateLayout(filterTaskObject, filterUserIds); //6
 }
 
 function filterUserByTaskStatus(filterTaskObject, status) {
   var arr = filterTaskObject.filter((taskObj) => taskObj.status == status);
   return arr;
 }
-
-function generateLayout(filterTaskObject, userIds) {
+function generateLayout(filterTaskObject, filterUserIds) {
   let postsDiv = document.getElementById("users");
   postsDiv.innerHTML = "";
 
-  userIds.forEach(userDiv);
+  filterUserIds.forEach(userDiv);
   function userDiv(userID) {
     userTaskDIv = `
                   <div id="userDiv_${userID}" class="aUserDiv">
                     <h2>UserId: ${userID}</h2>
-
                     <input type="text" id="addTask${userID}" placeholder="Add a new task." onkeydown="createTask(event, ${userID})"/>
-
                     <div id="taskInComplete_${userID}" class="taskInComplete"></div><hr>
                     <div id="taskComplete_${userID}" class="taskComplete"></div>
                   </div>
@@ -98,21 +106,11 @@ function generateLayout(filterTaskObject, userIds) {
 function displayData(filterTaskObject) {
   filterTaskObject.forEach(userDetial);
   function userDetial(taskObj) {
-    let task = `<div  class="task">
-                  <input type="checkbox" class="checkBox" id="taskCheck${
-                    taskObj.id
-                  }" onclick="changeStatus(${taskObj.status},${taskObj.id})" ${
-      taskObj.status ? "checked" : ""
-    }>
-                  <label class="checkLabel" for="taskCheck${
-                    taskObj.id
-                  }" id="task${taskObj.id}">${taskObj.title}</label>
-                  <button type="button" class="update" onclick="updateTitle(${
-                    taskObj.id
-                  },'${taskObj.title}')">&#9999</button>
-                  <button type="button" class="delTask" onclick="deleteTask(${
-                    taskObj.id
-                  })">X</button>
+    let task = `<div  class="task" id="taskDiv${taskObj.id}">
+                  <input type="checkbox" class="checkBox" id="taskCheck${taskObj.id}" onclick="changeStatus(${taskObj.status},${taskObj.id})" ${taskObj.status ? "checked" : ""}>
+                  <label class="checkLabel" for="taskCheck${taskObj.id}" id="task${taskObj.id}">${taskObj.title}</label>
+                  <button type="button" class="update" onclick="changeTitleTag(${taskObj.id},'${taskObj.title}')">&#9999</button>
+                  <button type="button" class="delTask" onclick="deleteTask(${taskObj.id})">X</button>
                 </div>
                 `;
     // let userTaskDIv = document.getElementById("userDiv_" + taskObj.userId);
@@ -132,10 +130,12 @@ function displayData(filterTaskObject) {
   }
 }
 
-//Update
+
+
+
+
+//Update status to server
 function changeStatus(stat, taskId) {
-  // let updateConfirm = confirm("Do you really wanna update status?");
-  // if (updateConfirm) {
   fetch(jsonURl + taskId, {
     method: "PATCH",
     body: JSON.stringify({
@@ -148,18 +148,28 @@ function changeStatus(stat, taskId) {
     .then((response) => response.json())
     .then((json) => {
       fetchData();
-      // console.log("Task  status changed to " + json.status, json);
-      // location.reload();
-      // generateLayout(filterTaskObject, userIds)
+      changeVariableStatus(taskId);
     });
-  // } else {
-  //   fetchData();
-  //   // location.reload();
-  //   // generateLayout(filterTaskObject, userIds)
-  // }
 }
 
-//Delete
+//Update status to variable
+function changeVariableStatus(taskId) {
+  globalAllTaskObject.forEach(
+    (taskObj)=> {
+      if(taskObj.id == taskId){
+        console.log(taskObj.status)
+        taskObj.status = !taskObj.status
+        console.log(taskObj.status)
+      }
+    }
+    );
+  generateLayout(globalAllTaskObject, globalAllUserIds);
+}
+
+
+
+
+//Delete To server
 function deleteTask(taskId) {
   let deleteConfirm = confirm("Do you really wanna delete it?");
   if (deleteConfirm) {
@@ -167,54 +177,119 @@ function deleteTask(taskId) {
       method: "DELETE",
     }).then(() => {
       console.log("Task " + taskId + " Deleted !");
-      fetchData();
+      console.log()
+      // fetchData();
+
+      console.log("hi")
+      console.log(globalAllTaskObject.length);
+      deleteTaskObj(taskId);
+      console.log(globalAllTaskObject.length);
     });
-  } else {
-    fetchData();
   }
 }
 
+//Delete To variable
+function deleteTaskObj(taskId) {
+  globalAllTaskObject.forEach(
+    (taskObj)=> {
+      if(taskObj.id == taskId){
+        globalAllTaskObject.splice(globalAllTaskObject.indexOf(taskObj),1)
+      }
+    }
+    );
+  generateLayout(globalAllTaskObject, globalAllUserIds);
+}
+
+
+
+
+
+//create To server
 function createTask(event, uId) {
   if (event.keyCode === 13) {
     let title = document.getElementById("addTask" + uId).value;
-    fetch("http://localhost:3000/todos", {
+    let newTaskObj1 = {
+      userId: uId,
+      title: title,
+      status: false,
+    };
+
+    fetch(jsonURl, {
       method: "POST",
-      body: JSON.stringify({
-        userId: uId,
-        title: title,
-        status: false,
-      }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
+      body: JSON.stringify(newTaskObj1),
     })
       .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        fetchData();
+      .then((jsonResponse) => {
+        console.log(jsonResponse);
+        createNewTaskObj(jsonResponse);
       });
   }
+  // else {
+  // console.log("hello1");
+  //   console.log("hello2");
+  // }
+  // return false;
 }
 
+
+//create To variable
+function createNewTaskObj(jsonResponse) {
+  console.log(jsonResponse);
+  //create new task object
+  let newTaskObj = {
+    id: jsonResponse.id,
+    userId: jsonResponse.userId,
+    title: jsonResponse.title,
+    status: jsonResponse.status,
+  };
+  //add|push it to globalAllTaskObject
+  globalAllTaskObject.push(newTaskObj);
+  // call generateLayout function and pass globalAllTaskObject & globalAllUserIds
+  generateLayout(globalAllTaskObject, globalAllUserIds);
+}
+
+
+
 var updateBoolen = true;
-function updateTitle(id, title) {
+function changeTitleTag(id, title) {
   let taskTitle = document.getElementById("task" + id);
+  // taskOfTask=id;
+
   if (updateBoolen) {
-    taskTitle.innerHTML = "";
-    taskTitle.innerHTML += `
-  <input type="text"/ id="updateTask${id}" value="${title}"  onkeydown="changeTitle(event, ${id})">
-  `;
+    let input = document.createElement("INPUT");
+    input.setAttribute("type", "text");
+    input.setAttribute("id", "task"+id);
+    input.setAttribute("value", title);
+    input.setAttribute("onkeydown", "changeTitle(event, "+id+")");
+
+    taskTitle.replaceWith(input)
+    input.focus();
+    const inputLength = input.value.length;
+    input.setSelectionRange(inputLength, inputLength);
+
     updateBoolen = !updateBoolen;
   } else {
-    taskTitle.innerHTML = title;
+    let label = document.createElement("Label");
+    label.setAttribute("class", "checkLabel");
+    label.setAttribute("for", "taskCheck"+id);
+    label.setAttribute("id", "task"+id);
+    taskTitle.replaceWith(label);
+    label.innerHTML= title;
+    taskTitle.replaceWith(label);
     updateBoolen = !updateBoolen;
   }
 }
 
-//Update
+
+
+
+//Update title to server
 function changeTitle(event, taskId) {
   if (event.keyCode === 13) {
-    let title = document.getElementById("updateTask" + taskId).value;
+    let title = document.getElementById("task" + taskId).value;
     let updateConfirm = confirm("Do you really wanna update title?");
     if (updateConfirm) {
       fetch(jsonURl + taskId, {
@@ -228,10 +303,24 @@ function changeTitle(event, taskId) {
       })
         .then((response) => response.json())
         .then((json) => {
-          fetchData();
+          changeVariableTitle(taskId, title)
         });
-    } else {
-      fetchData();
+    // } else {
+    //   changeVariableTitle(taskId, title)
     }
   }
+}
+
+//Update title to variable
+function changeVariableTitle(taskId, title) {
+  globalAllTaskObject.forEach(
+    (taskObj)=> {
+      if(taskObj.id == taskId){
+        console.log(taskObj.title)
+        taskObj.title = title
+        console.log(taskObj.title)
+      }
+    }
+    );
+  generateLayout(globalAllTaskObject, globalAllUserIds);
 }
